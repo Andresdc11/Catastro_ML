@@ -1,0 +1,195 @@
+{
+  "n_manzanas": 38748,
+  "n_train": 28538,
+  "n_test": 10210,
+  "sectores_train": 855,
+  "sectores_test": 285,
+  "mejor_modelo": "Random Forest",
+  "metricas_test": [
+    {
+      "modelo": "Random Forest",
+      "exactitud": 0.4454,
+      "exactitud_balanceada": 0.4453,
+      "f1_macro": 0.4454,
+      "f1_ponderado": 0.4455,
+      "kappa": 0.2606,
+      "error_1_categoria": 0.8079,
+      "seg_entrenamiento": 2.3
+    },
+    {
+      "modelo": "Gradient Boosting",
+      "exactitud": 0.4397,
+      "exactitud_balanceada": 0.4395,
+      "f1_macro": 0.4422,
+      "f1_ponderado": 0.4423,
+      "kappa": 0.2529,
+      "error_1_categoria": 0.8083,
+      "seg_entrenamiento": 5.9
+    },
+    {
+      "modelo": "KNN espacial (k=15)",
+      "exactitud": 0.4244,
+      "exactitud_balanceada": 0.4243,
+      "f1_macro": 0.4249,
+      "f1_ponderado": 0.425,
+      "kappa": 0.2325,
+      "error_1_categoria": 0.782,
+      "seg_entrenamiento": 0.2
+    },
+    {
+      "modelo": "Arbol de decision",
+      "exactitud": 0.4228,
+      "exactitud_balanceada": 0.4227,
+      "f1_macro": 0.4244,
+      "f1_ponderado": 0.4245,
+      "kappa": 0.2304,
+      "error_1_categoria": 0.7775,
+      "seg_entrenamiento": 0.7
+    },
+    {
+      "modelo": "Reg. logistica polinomica",
+      "exactitud": 0.4161,
+      "exactitud_balanceada": 0.4159,
+      "f1_macro": 0.4184,
+      "f1_ponderado": 0.4185,
+      "kappa": 0.2213,
+      "error_1_categoria": 0.7934,
+      "seg_entrenamiento": 7.2
+    },
+    {
+      "modelo": "Regresion logistica",
+      "exactitud": 0.3838,
+      "exactitud_balanceada": 0.3828,
+      "f1_macro": 0.375,
+      "f1_ponderado": 0.3757,
+      "kappa": 0.1777,
+      "error_1_categoria": 0.7461,
+      "seg_entrenamiento": 0.5
+    },
+    {
+      "modelo": "Baseline (mayoritaria)",
+      "exactitud": 0.2459,
+      "exactitud_balanceada": 0.25,
+      "f1_macro": 0.0987,
+      "f1_ponderado": 0.0971,
+      "kappa": 0.0,
+      "error_1_categoria": 0.7503,
+      "seg_entrenamiento": 0.0
+    }
+  ],
+  "comparacion_cv": [
+    {
+      "modelo": "Random Forest",
+      "f1_macro_cv_espacial": 0.4444,
+      "sd_espacial": 0.0105,
+      "f1_macro_cv_aleatoria": 0.5364,
+      "sd_aleatoria": 0.0051,
+      "sesgo_optimista": 0.0919,
+      "segundos": 26.4
+    },
+    {
+      "modelo": "Gradient Boosting",
+      "f1_macro_cv_espacial": 0.4352,
+      "sd_espacial": 0.0149,
+      "f1_macro_cv_aleatoria": 0.5387,
+      "sd_aleatoria": 0.0047,
+      "sesgo_optimista": 0.1035,
+      "segundos": 72.4
+    },
+    {
+      "modelo": "Reg. logistica polinomica",
+      "f1_macro_cv_espacial": 0.4205,
+      "sd_espacial": 0.0092,
+      "f1_macro_cv_aleatoria": 0.4353,
+      "sd_aleatoria": 0.0047,
+      "sesgo_optimista": 0.0148,
+      "segundos": 79.0
+    },
+    {
+      "modelo": "Arbol de decision",
+      "f1_macro_cv_espacial": 0.4135,
+      "sd_espacial": 0.0128,
+      "f1_macro_cv_aleatoria": 0.4773,
+      "sd_aleatoria": 0.0051,
+      "sesgo_optimista": 0.0639,
+      "segundos": 6.3
+    },
+    {
+      "modelo": "KNN espacial (k=15)",
+      "f1_macro_cv_espacial": 0.4123,
+      "sd_espacial": 0.0057,
+      "f1_macro_cv_aleatoria": 0.5365,
+      "sd_aleatoria": 0.0036,
+      "sesgo_optimista": 0.1242,
+      "segundos": 2.6
+    },
+    {
+      "modelo": "Regresion logistica",
+      "f1_macro_cv_espacial": 0.3769,
+      "sd_espacial": 0.0086,
+      "f1_macro_cv_aleatoria": 0.3838,
+      "sd_aleatoria": 0.0019,
+      "sesgo_optimista": 0.0069,
+      "segundos": 5.1
+    },
+    {
+      "modelo": "Baseline (mayoritaria)",
+      "f1_macro_cv_espacial": 0.0958,
+      "sd_espacial": 0.0014,
+      "f1_macro_cv_aleatoria": 0.1,
+      "sd_aleatoria": 0.0,
+      "sesgo_optimista": 0.0042,
+      "segundos": 0.1
+    }
+  ],
+  "arbol_mejores_parametros": {
+    "criterion": "entropy",
+    "max_depth": 12,
+    "min_samples_leaf": 50
+  },
+  "binaria": {
+    "auc_roc": 0.7035,
+    "average_precision": 0.4735,
+    "exactitud": 0.783,
+    "f1": 0.3995,
+    "kappa": 0.2898,
+    "prevalencia_test": 0.2497
+  },
+  "error_por_clase": [
+    {
+      "valor_cat": "Bajo",
+      "manzanas": 2551,
+      "exactitud": 0.508,
+      "desvio_medio": 0.855
+    },
+    {
+      "valor_cat": "Medio-Bajo",
+      "manzanas": 2510,
+      "exactitud": 0.351,
+      "desvio_medio": 0.296
+    },
+    {
+      "valor_cat": "Medio-Alto",
+      "manzanas": 2588,
+      "exactitud": 0.359,
+      "desvio_medio": -0.38
+    },
+    {
+      "valor_cat": "Alto",
+      "manzanas": 2549,
+      "exactitud": 0.561,
+      "desvio_medio": -0.776
+    }
+  ],
+  "vif_max": 99.74,
+  "variables_vif_alto": [
+    "lon",
+    "dist_cerros_km",
+    "dist_eje_financiero_km",
+    "dist_centro_sur_km",
+    "lat",
+    "dist_aeropuerto_km",
+    "dist_centro_historico_km",
+    "azimut_cos"
+  ]
+}

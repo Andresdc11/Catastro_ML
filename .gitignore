@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+data/processed/
+outputs/figuras/
+outputs/modelos/
+outputs/tablas/
+reports/informe.html
+*.geojson
+informe_publicable.html
+CALCULO HOGARES.ipynb
+descargarARGIS.ipynb
