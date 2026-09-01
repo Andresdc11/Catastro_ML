@@ -92,6 +92,12 @@ python run_pipeline.py --rapido
 Otras opciones: `--desde 3` reanuda desde el EDA, `--hasta 4` se detiene antes
 del informe. Cada etapa también corre suelta (`python src/models.py`).
 
+Para explorar y ajustar el análisis a mano está
+`notebooks/eda_valoracion_suelo.ipynb`: el mismo EDA con el código desplegado
+celda a celda y una sección de parámetros editables al inicio (paleta, tamaños
+de punto, cortes de anillos, zonas de validación, componentes del IVS). Si
+faltan los datos procesados, la segunda celda lanza las etapas 01 y 02.
+
 Tiempo total: **~5 minutos** en un portátil (la ingesta del GeoJSON completo
 toma 66 s). Sin dependencias de GDAL, geopandas ni shapely: la geometría se
 calcula con la fórmula del zapatero sobre una proyección equirectangular local.
@@ -112,6 +118,8 @@ Catastro_ML/
 │   ├── eda.py              03  12 figuras + 5 tablas
 │   ├── models.py           04  7 clasificadores + 7 figuras + 10 tablas
 │   └── report.py           05  informe .md y .html autocontenido
+├── notebooks/
+│   └── eda_valoracion_suelo.ipynb   EDA interactivo, código desplegado
 ├── data/processed/             csv.gz intermedios
 ├── outputs/
 │   ├── figuras/                fig01 … fig19 (png)
