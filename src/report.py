@@ -149,6 +149,7 @@ def construir_markdown():
     cv = pd.DataFrame(mo["comparacion_cv"])
     odds = pd.read_csv(C.TAB_DIR / "t13_odds_ratios.csv")
     imp = pd.read_csv(C.TAB_DIR / "t12_importancias.csv")
+    atrib = pd.read_csv(C.TAB_DIR / "t03b_utilidad_atributos.csv").set_index("atributo")
     vif = pd.read_csv(C.TAB_DIR / "t13c_colinealidad.csv")
     err_clase = pd.DataFrame(mo["error_por_clase"])
     with open(C.TAB_DIR / "t16_reporte_clasificacion.txt", encoding="utf-8") as fh:
@@ -242,9 +243,17 @@ def construir_markdown():
     A("![Calidad de datos](../outputs/figuras/fig01_calidad_datos.png)")
     A("")
     A("Hallazgos de calidad relevantes: la mediana de huella es de apenas ~24 m2 "
-      "porque la capa descompone cada predio en partes homogeneas en altura; "
-      "`CONALTURA` esta casi siempre en cero, por lo que la altura util es "
-      "`CONNPISOS`; y `CONELEVACI` replica a `CONNPISOS` en la mayoria de casos.")
+      "porque la capa descompone cada predio en partes homogeneas en altura, de "
+      "modo que un registro no equivale a un edificio. Sobre los atributos "
+      "declarados, buena parte aporta poco: `CONALTURA` viene en cero en el "
+      "%.0f%% de los registros -por eso la altura util es `CONNPISOS`-, "
+      "`CONMEJORA` en el %.0f%% y `CONVOLADIZ` en el %.0f%%; y `CONELEVACI` "
+      "coincide con `CONNPISOS` en el %.0f%% de los casos, asi que no agrega "
+      "informacion."
+      % (atrib.loc["CONALTURA", "pct_sin_informacion"],
+         atrib.loc["CONMEJORA", "pct_sin_informacion"],
+         atrib.loc["CONVOLADIZ", "pct_sin_informacion"],
+         atrib.loc["CONELEVACI", "pct_sin_informacion"]))
     A("")
     A("![Distribuciones](../outputs/figuras/fig02_distribuciones_construccion.png)")
     A("")

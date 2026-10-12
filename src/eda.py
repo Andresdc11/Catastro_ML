@@ -118,6 +118,22 @@ def fig_calidad(stats, mues):
     pd.DataFrame({"indicador": list(descartes), "registros": v}).to_csv(
         C.TAB_DIR / "t03_calidad_datos.csv", index=False)
 
+    # utilidad real de cada atributo: que fraccion viene en cero
+    pd.DataFrame({
+        "atributo": ["CONALTURA", "CONNSOTANO", "CONTSEMIS", "CONMEJORA",
+                     "CONVOLADIZ", "CONELEVACI"],
+        "pct_sin_informacion": [
+            round((mues["altura"] == 0).mean() * 100, 1),
+            round((mues["sotanos"] == 0).mean() * 100, 1),
+            round((mues["semisotanos"] == 0).mean() * 100, 1),
+            round((mues["mejora"] == 0).mean() * 100, 1),
+            round((mues["voladizo"] == 0).mean() * 100, 1),
+            round((mues["elevacion"] == mues["n_pisos"]).mean() * 100, 1),
+        ],
+        "lectura": ["en cero", "en cero", "en cero", "en cero", "en cero",
+                    "identico a CONNPISOS"],
+    }).to_csv(C.TAB_DIR / "t03b_utilidad_atributos.csv", index=False)
+
 
 def fig_distribuciones(mues):
     fig, axes = plt.subplots(2, 2, figsize=(11, 7))

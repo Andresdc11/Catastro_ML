@@ -78,7 +78,91 @@ regresión logística —un modelo lineal no puede memorizar el vecindario.
 
 ---
 
+## Pronóstico del valor del suelo
+
+Sobre el precio real de Catastro (2017-2026), validando **en el tiempo**:
+
+| | |
+|---|---|
+| Deriva de la ciudad, mejor método | **deriva reciente (4 años)**, 1.6 % de error en el backtest |
+| Rango defendible para 2027-2030 | **4.3 % a 14.5 %** anual nominal |
+| Crecimiento relativo por manzana, mejor R² | ensamble de árboles, **R² = 0.136** |
+| El mismo problema con partición aleatoria | R² = 0.712 — el autoengaño mide **0.62 puntos** |
+| Modelos que le ganan a la línea base (bootstrap por sector) | **ninguno de 10** al 95 % |
+
+Dos resultados que se sostienen. El primero: **el crecimiento es un fenómeno de
+zona**, con el 93 % de su varianza entre sectores catastrales, y **no hay
+momentum** —la autocorrelación anual es negativa, huella de que Catastro
+actualiza por turnos—. El segundo: la única señal transversal fuerte es la
+**reversión a la media**, el suelo barato se valoriza más rápido en porcentaje.
+
+Y una advertencia metodológica que el notebook documenta con números: añadir
+**una sola variable redundante** (una resta de dos columnas ya presentes) hunde
+al Random Forest de R² 0.090 a −0.438, mientras Ridge no se mueve.
+
+---
+
+## Tipologías de mercado
+
+Clustering sobre el comportamiento de precios, **sin usar la geografía**:
+
+| | |
+|---|---|
+| Grupos, elegidos por estabilidad | **6** (ARI = 0.466) |
+| Pureza espacial del resultado | **0.864** frente a 0.167 al azar |
+| Separación entre grupos / dispersión total, `dist_eje_financiero_km` | **0.790** |
+| Manzanas atípicas (dos o más detectores) | **488** (1.3 %) |
+
+Los grupos se forman sin coordenadas y aun así se ordenan sobre el gradiente
+urbano: el 58 % de las manzanas cae en un grupo caro que sigue el ritmo de la
+ciudad, un 29 % en uno barato que crece algo más rápido, y en el extremo quedan
+dos grupos pequeños y muy inestables (573 y 145 manzanas) que son revalúos
+administrativos antes que mercado.
+
+Dos trampas quedan documentadas con números. Los enlaces `average` y `complete`
+sacan la **mejor silueta de toda la tabla** (0.78) con un grupo que se queda el
+99 % de las manzanas: el índice premia una partición inútil. Y la lista de
+"zonas que más crecen" es un ranking de pobreza mientras no se descuente la
+reversión a la media; al descontarla, los sectores de mayor **oportunidad** van
+de 1.2 M a 9.1 M COP/m².
+
+---
+
+## Detección de anomalías
+
+Rarezas **de vecindario** y **de serie**, con el desempeño medido contra
+anomalías sintéticas inyectadas:
+
+| | |
+|---|---|
+| Vecindarios donde Catastro asigna el mismo valor a todas las manzanas | **69.8 %** |
+| Mejor detector contra anomalías inyectadas | **LOF**, average precision 0.115 (azar 0.032) |
+| Revisando las 187 primeras | **52 %** son anomalías reales |
+| Manzanas marcadas por mayoría de los 7 detectores | **235** (0.6 %) |
+| Transiciones (manzana, año) analizadas | **299 536** |
+
+Tres cosas que el notebook deja medidas. La primera es un hecho sobre el dato:
+como `V_REF` se asigna por zonas, en el **70 %** de los vecindarios la
+desviación es exactamente cero, y una representación contextual ingenua divide
+por cero y produce ranking de ruido de redondeo. La segunda es que
+`average_precision` y `roc_auc` **ordenan los detectores al revés** —con 3 % de
+positivos el ROC premia ordenar bien el montón, no la cabeza de la lista—. La
+tercera: con anomalías sutiles **los siete detectores son igual de malos**, y la
+diferencia entre ellos solo aparece cuando la anomalía es grande.
+
+---
+
 ## Uso
+
+**Si solo vas a abrir un archivo, abre
+[`notebooks/consolidado_hallazgos.ipynb`](notebooks/consolidado_hallazgos.ipynb).**
+Reúne los hallazgos de los cinco notebooks y del pipeline en un solo documento,
+organizado en lo que se puede usar para decidir, lo que no funciona aunque lo
+parezca, y las cinco trampas metodológicas que el proyecto documenta con
+números. No escribe ninguna cifra a mano: todas las lee de `outputs/tablas/` y
+de `data/processed/`, así que si se vuelve a correr cualquier notebook con
+otros parámetros, el consolidado cambia solo. Si falta alguna tabla lo reporta
+y sigue.
 
 ```bash
 pip install -r requirements.txt
@@ -98,6 +182,76 @@ celda a celda y una sección de parámetros editables al inicio (paleta, tamaño
 de punto, cortes de anillos, zonas de validación, componentes del IVS). Si
 faltan los datos procesados, la segunda celda lanza las etapas 01 y 02.
 
+`notebooks/comparacion_modelos_pycaret.ipynb` enfrenta al Random Forest con toda
+la batería de clasificadores de PyCaret (boosting, extra trees, lineales,
+bayesianos), ajusta los mejores, arma un ensamble y decide con un bootstrap por
+sector si alguno lo supera de verdad. Usa la misma partición espacial que
+`src/models.py`. Resultado: Gradient Boosting ajustado, el ensamble, LightGBM y
+CatBoost quedan hasta 0.007 de F1 macro por encima del Random Forest en
+hold-out, pero ninguno se distingue de él en el bootstrap por sector (todos los
+intervalos del 95 % cruzan el cero).
+
+PyCaret exige versiones de scikit-learn y pandas distintas a las del pipeline,
+así que corre en su propio entorno conda (`pycaret`) con el kernel
+**Python (catastro-pycaret)**. Para recrearlo, desde Anaconda Prompt en la raíz
+del repositorio:
+
+```bash
+conda create -n pycaret --override-channels -c conda-forge python=3.9.13 pip -y
+conda activate pycaret
+python -m pip install -r requirements-pycaret.txt
+python -m ipykernel install --user --name catastro-pycaret --display-name "Python (catastro-pycaret)"
+```
+
+`notebooks/valor_suelo_pesos_m2.ipynb` es un flujo aparte que trae el **valor
+comercial real del suelo** (COP/m² por manzana, 2017-2026) y el uso económico
+predominante desde los servicios de Catastro Bogotá, unidos por código de
+manzana. Sirve para tres cosas: calibrar el IVS contra el precio real —el
+resultado es que **no le gana a usar la mediana de la ciudad**—, ver dónde se
+valoriza Bogotá por encima del promedio, y ubicar las manzanas empresariales.
+La primera ejecución descarga ~430 mil registros (unos 4 minutos) y los deja en
+caché. Corre con el entorno principal del pipeline.
+
+`notebooks/pronostico_valor_suelo.ipynb` lleva ese insumo al terreno predictivo:
+**¿cuánto costará el m² de terreno en los próximos años y dónde subirá más que
+en el resto de la ciudad?** Separa el problema en dos —la deriva de la ciudad,
+que son diez puntos anuales y se ataca con series de tiempo (caminata aleatoria,
+deriva histórica y reciente, tendencia lineal, Holt, ARIMA), y el término
+relativo por manzana, que son 37 442 filas y se ataca con once métodos
+supervisados— y dedica una sección entera a las **métricas**, porque no dan el
+mismo ganador. Valida en el tiempo, no al azar: se ajusta prediciendo 2020→2023
+y se evalúa prediciendo 2023→2026. Deja
+`data/processed/pronostico_manzanas.csv.gz` con el precio proyectado a 2030 en
+tres escenarios. Reutiliza la caché del notebook anterior; corre en ~1 minuto.
+
+`notebooks/clusters_comportamiento_mercado.ipynb` cierra la serie con
+aprendizaje **no supervisado**: **¿cuántas maneras distintas de comportarse
+tiene el suelo de Bogotá?** Agrupa las manzanas usando **solo su comportamiento
+de mercado** —precio, valorización, volatilidad, inercia y pronóstico— y deja
+fuera la ubicación, la morfología y el uso, que quedan como validación externa:
+así la pregunta "¿estos grupos coinciden con zonas reales de la ciudad?" tiene
+una respuesta que significa algo. Compara seis algoritmos (K-Means, mezcla
+gaussiana, jerárquico, BIRCH, DBSCAN y una variante espacialmente contigua),
+elige `k` con cinco criterios incluida la **estabilidad por remuestreo**, y
+recorre las rejillas de hiperparámetros de cada uno. Termina señalando las zonas
+que destacan en dos sentidos: **oportunidad** (crecen más que sus pares de
+precio, no más que la ciudad) y **atípicas** (ningún grupo las explica). Deja
+`data/processed/clusters_manzanas.csv.gz`. Corre en ~2½ minutos.
+
+`notebooks/anomalias_suelo.ipynb` busca **rarezas**, pero no las que ya marcaba
+el notebook anterior. Dos preguntas nuevas: ¿esta manzana es rara **para su
+vecindario** —aunque sea corrientísima a escala de ciudad— y **en qué año** se
+rompió su serie? Lo primero se resuelve en la representación más que en el
+algoritmo: se da a los detectores el **residuo frente a los vecinos** en vez del
+dato crudo, y con eso siete detectores estándar (Isolation Forest, LOF,
+One-Class SVM, Elliptic Envelope, reconstrucción por PCA, mezcla gaussiana y
+distancia al k-ésimo vecino) pasan a responder una pregunta contextual. Lo
+segundo cambia la unidad de análisis a la transición (manzana, año): 300 mil
+filas, con búsqueda exhaustiva del punto de quiebre. Como no hay etiquetas, el
+desempeño se mide **inyectando anomalías sintéticas** de magnitud conocida.
+Entrega una lista priorizada con el motivo de cada marca y la separación entre
+**artefacto administrativo** y **rareza aislada**. Corre en ~1½ minutos.
+
 Tiempo total: **~5 minutos** en un portátil (la ingesta del GeoJSON completo
 toma 66 s). Sin dependencias de GDAL, geopandas ni shapely: la geometría se
 calcula con la fórmula del zapatero sobre una proyección equirectangular local.
@@ -110,6 +264,7 @@ calcula con la fórmula del zapatero sobre una proyección equirectangular local
 Catastro_ML/
 ├── run_pipeline.py             orquestador de las 5 etapas
 ├── requirements.txt
+├── requirements-pycaret.txt    lista congelada del entorno conda de PyCaret
 ├── src/
 │   ├── config.py               rutas, parámetros, geografía de referencia
 │   ├── geo_utils.py            área, perímetro, centroide, haversine, azimut
@@ -119,11 +274,17 @@ Catastro_ML/
 │   ├── models.py           04  7 clasificadores + 7 figuras + 10 tablas
 │   └── report.py           05  informe .md y .html autocontenido
 ├── notebooks/
-│   └── eda_valoracion_suelo.ipynb   EDA interactivo, código desplegado
+│   ├── consolidado_hallazgos.ipynb        ← empezar por aquí: todo el proyecto
+│   ├── eda_valoracion_suelo.ipynb         EDA interactivo, código desplegado
+│   ├── comparacion_modelos_pycaret.ipynb  Random Forest contra PyCaret
+│   ├── valor_suelo_pesos_m2.ipynb         precio real del suelo y calibración
+│   ├── pronostico_valor_suelo.ipynb       pronóstico a 2030 y análisis de métricas
+│   ├── clusters_comportamiento_mercado.ipynb  tipologías de mercado y zonas que destacan
+│   └── anomalias_suelo.ipynb              rarezas de vecindario y quiebres de serie
 ├── data/processed/             csv.gz intermedios
 ├── outputs/
 │   ├── figuras/                fig01 … fig19 (png)
-│   ├── tablas/                 t01 … t16 (19 csv)
+│   ├── tablas/                 t01 … t62 (68 csv)
 │   ├── modelos/                *.joblib
 │   └── resumen_modelado.json
 └── reports/
@@ -153,6 +314,10 @@ financiero / aeropuerto / centralidad sur / cerros orientales, `azimut_sin`,
 ## Limitaciones
 
 1. El IVS es un proxy de intensidad y formalidad constructiva, **no un avalúo**.
+   Contrastado con el valor de referencia de Catastro (ver
+   `notebooks/valor_suelo_pesos_m2.ipynb`), su correlación de Spearman con el
+   precio del suelo es 0.33, y convertirlo a pesos se equivoca más que usar la
+   mediana de la ciudad. Sirve para ordenar manzanas, no para estimar precios.
 2. Los barrios informales densos quedan algo sobrevalorados: PC2 corrige buena
    parte del sesgo, pero la mitad inferior del ranking es menos confiable.
 3. El área de manzana se aproxima con el rectángulo envolvente de sus

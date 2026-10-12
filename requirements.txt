@@ -6,3 +6,4 @@ scikit-learn>=1.1
 matplotlib>=3.6
 seaborn>=0.12
 joblib>=1.2
+statsmodels>=0.13   # Holt y ARIMA en notebooks/pronostico_valor_suelo.ipynb

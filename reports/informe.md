@@ -39,7 +39,7 @@ El GeoJSON de 1.8 GB no cabe en memoria, así que se recorre **línea a línea**
 
 ![Calidad de datos](../outputs/figuras/fig01_calidad_datos.png)
 
-Hallazgos de calidad relevantes: la mediana de huella es de apenas ~24 m2 porque la capa descompone cada predio en partes homogeneas en altura; `CONALTURA` esta casi siempre en cero, por lo que la altura util es `CONNPISOS`; y `CONELEVACI` replica a `CONNPISOS` en la mayoria de casos.
+Hallazgos de calidad relevantes: la mediana de huella es de apenas ~24 m2 porque la capa descompone cada predio en partes homogeneas en altura, de modo que un registro no equivale a un edificio. Sobre los atributos declarados, buena parte aporta poco: `CONALTURA` viene en cero en el 77% de los registros -por eso la altura util es `CONNPISOS`-, `CONMEJORA` en el 98% y `CONVOLADIZ` en el 80%; y `CONELEVACI` coincide con `CONNPISOS` en el 98% de los casos, así que no agrega información.
 
 ![Distribuciones](../outputs/figuras/fig02_distribuciones_construccion.png)
 

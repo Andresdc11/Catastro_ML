@@ -9,3 +9,7 @@ reports/informe.html
 informe_publicable.html
 CALCULO HOGARES.ipynb
 descargarARGIS.ipynb
+# log que PyCaret crea por defecto
+logs.log
+# logs de entrenamiento que CatBoost escribe por defecto
+catboost_info/
